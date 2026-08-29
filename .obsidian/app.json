@@ -1,0 +1,24 @@
+{
+  "strictLineBreaks": true,
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "current",
+  "useMarkdownLinks": true,
+  "attachmentFolderPath": "./static",
+  "newLinkFormat": "relative",
+  "promptDelete": false,
+  "showUnsupportedFiles": true,
+  "userIgnoreFilters": null,
+  "spellcheckDictionary": [
+    "пермишн",
+    "Бизнес-требования",
+    "крон-сервиса",
+    "бизнес-дней",
+    "крон-процесс",
+    "аппрувнут"
+  ],
+  "showLineNumber": false,
+  "readableLineLength": true,
+  "smartIndentList": true,
+  "foldIndent": false,
+  "showIndentGuide": false
+}

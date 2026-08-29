@@ -1,0 +1,86 @@
+.status-bar-button {
+	padding: 4px 8px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.2s, transform 0.2s;
+}
+
+.status-bar-button:hover {
+	background-color: var(--background-modifier-border);
+}
+
+.status-bar-button:active {
+	border: 2px solid var(--interactive-accent);
+	border-radius: var(--radius-s);
+}
+
+.task-code-input {
+	min-width: 300px;
+	width: 300px;
+}
+
+.git-commit-modal {
+	width: min(90vw, 760px);
+}
+
+.commit-description-input {
+	min-width: 600px;
+	width: 100%;
+	height: 100px;
+	resize: none;
+}
+
+.task-type-dropdown {
+	min-width: 300px;
+	width: 300px;
+}
+
+.git-file-tree {
+	max-height: 220px;
+	overflow: auto;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	padding: 6px 8px;
+	margin-bottom: 12px;
+}
+
+.git-tree-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 2px 0;
+}
+
+.git-tree-row input {
+	margin: 0;
+	flex-shrink: 0;
+}
+
+.git-file-status {
+	flex-shrink: 0;
+	width: 1.2em;
+	text-align: center;
+	font-weight: 560;
+	font-family: var(--font-monospace);
+}
+
+.git-file-status-A {
+	color: var(--color-green);
+}
+
+.git-file-status-M {
+	color: var(--color-yellow);
+}
+
+.git-file-status-R {
+	color: var(--color-red);
+}
+
+.git-file-path {
+	white-space: nowrap;
+}
+
+.git-tree-empty {
+	color: var(--text-muted);
+	padding: 6px 0 12px;
+}

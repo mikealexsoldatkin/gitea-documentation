@@ -1,0 +1,19 @@
+/* Ribbon icon active state */
+.ribbon-icon.is-active,
+.side-dock-ribbon-action.is-active {
+  color: var(--color-accent) !important;
+}
+
+/* Toolbar button active state */
+.plaintext-view-action.is-active {
+  color: var(--color-accent) !important;
+}
+
+/* Ensure touch targets are at least 44x44px on mobile */
+.plaintext-view-action {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

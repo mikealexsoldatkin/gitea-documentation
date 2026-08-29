@@ -1,0 +1,9 @@
+{
+  "id": "plaintext-view",
+  "name": "Plain Text View",
+  "version": "1.0.4",
+  "minAppVersion": "1.0.0",
+  "description": "View and edit markdown files as plain text with syntax highlighting.",
+  "author": "Zack Schwenk",
+  "isDesktopOnly": false
+}

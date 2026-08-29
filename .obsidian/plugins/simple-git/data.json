@@ -1,0 +1,14 @@
+{
+  "branchTypes": [
+    {
+      "value": "docs",
+      "label": "Documentation"
+    },
+    {
+      "value": "catch",
+      "label": "Tech Debt"
+    }
+  ],
+  "showCurrentBranch": false,
+  "showStagingTreeOnCommittingUI": true
+}

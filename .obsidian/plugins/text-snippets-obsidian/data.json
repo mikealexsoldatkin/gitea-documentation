@@ -1,0 +1,21 @@
+{
+  "snippets_file": "info : > [!info]$nl$>\n\nsuccess : > [!success]$nl$>\n\ndone : > [!success]$nl$>\n\nwarning : > [!warning]$nl$>\n\nfailure : > [!failure]$nl$>\n\nerror : > [!failure]$nl$>\n\nexample : > [!example]$nl$>\n\npurple : > [!example]$nl$>\n\n",
+  "snippets": [
+    "info : > [!info]$nl$>",
+    "success : > [!success]$nl$>",
+    "done : > [!success]$nl$>",
+    "warning : > [!warning]$nl$>",
+    "failure : > [!failure]$nl$>",
+    "error : > [!failure]$nl$>",
+    "example : > [!example]$nl$>",
+    "purple : > [!example]$nl$>"
+  ],
+  "endSymbol": "$end$",
+  "newlineSymbol": "$nl$",
+  "stopSymbol": "$tb$",
+  "pasteSymbol": "$pst$",
+  "useTab": true,
+  "useSpace": false,
+  "wordDelimiters": "$()[]{}<>,.!?;:'\"\\/",
+  "isWYSIWYG": true
+}

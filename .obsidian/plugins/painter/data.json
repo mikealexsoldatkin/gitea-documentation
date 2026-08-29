@@ -1,0 +1,23 @@
+{
+  "highlighterStyle": "realistic",
+  "highlighterMethods": "inline-styles",
+  "highlighters": {
+    "Gray": "#dddfe3ff",
+    "Green": "#D3F1A7ff",
+    "Blue": "#C6EDFBff",
+    "Orange": "#fedec8ff",
+    "Red": "#fdd0ecff",
+    "Purple": "#dfd8fdff"
+  },
+  "highlighterOrder": [
+    "Gray",
+    "Blue",
+    "Green",
+    "Orange",
+    "Red",
+    "Purple"
+  ],
+  "menuMode": "normal",
+  "cleanSelectors": [],
+  "overwriteMarks": true
+}

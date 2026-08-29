@@ -1,0 +1,11 @@
+{
+	"id": "americor-features-plugin",
+	"name": "Americor Features",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Extended Service for Docs-as-code process",
+	"author": "Mikhail Soldatkin",
+	"authorUrl": "https://t.me/mikealexsoldatkin",
+	"fundingUrl": "https://t.me/mikealexsoldatkin",
+	"isDesktopOnly": true
+}
