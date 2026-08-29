@@ -1,0 +1,68 @@
+name: cleanup preview
+
+on:
+  pull_request:
+    types:
+      - closed
+
+# make sure two closing events for the same pull request do not delete the same
+# deployment twice
+concurrency:
+  group: cleanup-preview-${{ github.event.pull_request.number }}
+
+jobs:
+  cleanup-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: delete the Cloudflare Pages preview deployments
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          # pull requests from forks do not get the secrets, nothing was
+          # deployed for them either
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
+            echo "no Cloudflare credentials available, skipping the preview cleanup"
+            exit 0
+          fi
+
+          project=docs-gitea-com
+          branch="pr-$PR_NUMBER"
+          api="https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$project/deployments"
+
+          page=1
+          ids=""
+          while true; do
+            curl --silent --show-error --fail --output deployments.json \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              "$api?per_page=100&page=$page"
+
+            found="$(jq -r --arg branch "$branch" \
+              '.result[] | select(.deployment_trigger.metadata.branch == $branch) | .id' deployments.json)"
+            if [ -n "$found" ]; then
+              ids="$ids$found"$'\n'
+            fi
+
+            # the API returns an empty result once the last page is passed
+            [ "$(jq -r '.result | length' deployments.json)" -eq 100 ] || break
+            page=$((page + 1))
+          done
+
+          if [ -z "$(printf '%s' "$ids" | tr -d '[:space:]')" ]; then
+            echo "no preview deployment found for $branch"
+            exit 0
+          fi
+
+          # force=true also removes the deployment the branch alias points at
+          printf '%s' "$ids" | while read -r id; do
+            [ -n "$id" ] || continue
+            echo "deleting the deployment $id of $branch"
+            curl --silent --show-error --fail --output /dev/null \
+              -X DELETE "$api/$id?force=true" \
+              -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN"
+          done
+
+          echo "the preview of $branch is gone"

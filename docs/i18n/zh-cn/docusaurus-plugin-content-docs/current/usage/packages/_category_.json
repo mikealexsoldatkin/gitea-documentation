@@ -1,0 +1,9 @@
+{
+  "label": "软件包",
+  "position": 40,
+  "link": {
+    "type": "generated-index",
+    "slug": "/usage/packages",
+    "description": "软件包管理，依赖关系，和分发功能"
+  }
+}

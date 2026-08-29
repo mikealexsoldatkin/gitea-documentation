@@ -1,0 +1,110 @@
+name: update api spec files
+
+on:
+  schedule:
+    - cron:  '0 */12 * * *' # every 12 hours on the hour
+  workflow_dispatch:
+
+env:
+  # main is protected, so the update is proposed as a pull request from this branch
+  BOT_BRANCH: bot/update-swagger-latest
+  BASE_BRANCH: main
+  # the documents of the gitea main branch, refreshed by this job
+  LATEST_FILES: static/swagger-latest.json static/openapi3-latest.json
+
+jobs:
+  update-swagger:
+    if: github.repository == 'gitea/docs'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          # pushing uses DEPLOY_TOKEN, keep the ephemeral job token out of .git/config
+          persist-credentials: false
+      - name: regenerate the latest api documents
+        run: make update-api-docs-latest
+      - name: verify the generated file
+        run: |
+          set -euo pipefail
+          for file in $LATEST_FILES; do
+            # placeholders must have been replaced, otherwise upstream changed them again
+            if grep -q -e 'GITEA-API-APP' -e '{{' "$file"; then
+              echo "$file still contains template placeholders"
+              exit 1
+            fi
+            if command -v python3 >/dev/null 2>&1; then
+              python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$file"
+            fi
+          done
+      - name: push bot branch
+        id: bot_branch
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- $LATEST_FILES; then
+            echo "the api documents are already up to date"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ -z "$DEPLOY_TOKEN" ]; then
+            echo "secrets.DEPLOY_TOKEN is missing, cannot push the update"
+            exit 1
+          fi
+          remote="https://x-access-token:$DEPLOY_TOKEN@${GITHUB_SERVER_URL#*://}/$GITHUB_REPOSITORY.git"
+
+          # skip if an open bot branch already carries exactly this file
+          if git fetch --quiet --depth=1 "$remote" "refs/heads/$BOT_BRANCH" 2>/dev/null; then
+            same=true
+            for file in $LATEST_FILES; do
+              old_blob="$(git rev-parse --quiet --verify "FETCH_HEAD:$file" || true)"
+              if [ "$old_blob" != "$(git hash-object "$file")" ]; then
+                same=false
+                break
+              fi
+            done
+            if [ "$same" = true ]; then
+              echo "$BOT_BRANCH already proposes these api documents"
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          git config user.name "Gitea Bot"
+          git config user.email "teabot@gitea.io"
+          git switch --create "$BOT_BRANCH"
+          git add $LATEST_FILES
+          git commit -m "Update the latest api documents"
+          # force push: the branch is always rebuilt on top of the current main
+          git push --force "$remote" "HEAD:refs/heads/$BOT_BRANCH"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: create pull request
+        if: steps.bot_branch.outputs.changed == 'true'
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          cat > pull.json <<EOF
+          {
+            "base": "$BASE_BRANCH",
+            "head": "$BOT_BRANCH",
+            "title": "Update the latest api documents",
+            "body": "Automated update of static/swagger-latest.json and static/openapi3-latest.json from the gitea main branch, opened by the \"update api spec files\" scheduled workflow."
+          }
+          EOF
+
+          code="$(curl --silent --show-error --output pull-response.json --write-out '%{http_code}' \
+            -X POST "${GITHUB_API_URL:-$GITHUB_SERVER_URL/api/v1}/repos/$GITHUB_REPOSITORY/pulls" \
+            -H "Authorization: token $DEPLOY_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data @pull.json)"
+
+          case "$code" in
+            201) echo "pull request created" ;;
+            409) echo "an open pull request for $BOT_BRANCH already exists, it now points at the new commit" ;;
+            *) echo "unexpected response $code:"; cat pull-response.json; exit 1 ;;
+          esac

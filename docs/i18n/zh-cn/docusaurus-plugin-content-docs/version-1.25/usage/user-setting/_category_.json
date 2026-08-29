@@ -1,0 +1,9 @@
+{
+  "label": "用户设置",
+  "position": 200,
+  "link": {
+    "type": "generated-index",
+    "slug": "/usage/user-setting",
+    "description": "配置用户偏好和设置"
+  }
+}

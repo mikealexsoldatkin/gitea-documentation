@@ -1,0 +1,9 @@
+{
+  "runner": [
+    {
+      "type": "doc",
+      "id": "index",
+      "label": "Gitea Runner"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "runner": [
+    {
+      "type": "doc",
+      "id": "index",
+      "label": "What is the Gitea Runner?"
+    },
+    {
+      "type": "category",
+      "label": "Installation",
+      "collapsed": false,
+      "items": [
+        "installation/binary",
+        "installation/docker",
+        "installation/kubernetes"
+      ]
+    },
+    "registration",
+    "configuration",
+    "labels",
+    "cache",
+    {
+      "type": "category",
+      "label": "Hooks",
+      "items": [
+        "hooks/post-task-script"
+      ]
+    },
+    "monitoring",
+    "upgrade",
+    {
+      "type": "category",
+      "label": "Reference",
+      "items": [
+        "reference/cli",
+        "reference/config-example"
+      ]
+    }
+  ]
+}

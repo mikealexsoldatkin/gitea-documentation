@@ -1,0 +1,106 @@
+---
+import { Card, CardGrid } from '@astrojs/starlight/components';
+import { specDownloads } from '../config/api';
+
+/**
+ * Replaces the "Operations" section of the api overview, which lists every
+ * operation of the document and duplicates the sidebar one for one — 484 rows
+ * on the gitea api. Each tag gets a card linking to its own page instead.
+ *
+ * Substituted for `starlight-openapi/components/overview/OverviewNavigationLinks.astro`
+ * by the `gitea-openapi-overview` vite plugin in `astro.config.mjs`, so the
+ * props are the ones that component receives.
+ *
+ * The documents of the version are offered for download above the cards, the
+ * rendered pages are of no use to a code generator.
+ */
+interface NavigationGroup {
+  label: string;
+  links: { href: string; label: string; method?: string; path?: string }[];
+  operationTag?: { name: string; description?: string };
+  type: 'operations' | 'webhooks';
+}
+
+const { groups } = Astro.props as { groups: NavigationGroup[] };
+const visible = groups.filter((group) => group.links.length > 0);
+
+const meta = Astro.locals.starlightRoute.entry.data.gitea;
+const downloads = meta ? specDownloads(meta.version) : [];
+
+/**
+ * Page of a tag, `/api/operations/tags/repository/`. Derived from the first
+ * operation link of the group, which is `<base>/operations/<operation>/`, so it
+ * works for every version without knowing the base path here.
+ */
+function tagHref(group: NavigationGroup): string | undefined {
+  if (group.type !== 'operations' || !group.operationTag) return undefined;
+  const first = group.links[0]?.href;
+  const base = first?.slice(0, first.indexOf('operations/'));
+  if (!base) return undefined;
+  const slug = group.operationTag.name
+    .toLowerCase()
+    .replace(/[^\w-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return `${base}operations/tags/${slug}/`;
+}
+
+function count(group: NavigationGroup): string {
+  const total = group.links.length;
+  return `${total} ${total === 1 ? 'operation' : 'operations'}`;
+}
+---
+
+{
+  downloads.length > 0 && (
+    <p class="gitea-api-downloads">
+      Download the specification:
+      {downloads.map((download, index) => (
+        <>
+          {index > 0 && ', '}
+          <a href={download.href} download>
+            {download.label}
+          </a>
+        </>
+      ))}
+    </p>
+  )
+}
+{
+  visible.length > 0 && (
+    <div class="gitea-api-overview">
+      <h2 id="operations">Operations</h2>
+      <CardGrid>
+        {visible.map((group) => {
+          const href = tagHref(group);
+          return (
+            <Card title={group.label} icon="open-book">
+              {group.operationTag?.description && <p>{group.operationTag.description}</p>}
+              <p class="gitea-api-overview-count">
+                {href ? <a href={href}>{count(group)}</a> : count(group)}
+              </p>
+            </Card>
+          );
+        })}
+      </CardGrid>
+    </div>
+  )
+}
+
+<style>
+  .gitea-api-overview {
+    margin-top: 3.25rem;
+  }
+
+  .gitea-api-overview-count {
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+  }
+
+  .gitea-api-downloads {
+    margin-top: 1.5rem;
+  }
+
+  .gitea-api-downloads a {
+    margin-inline-start: 0.35rem;
+  }
+</style>

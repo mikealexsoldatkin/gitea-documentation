@@ -1,0 +1,9 @@
+{
+  "label": "Issues & Pull Requests",
+  "position": 20,
+  "link": {
+    "type": "generated-index",
+    "slug": "/usage/issues-prs",
+    "description": "Issues and Pull Requests workflow, templates, and collaboration features"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "gitea-docs",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @gitea-docs/site dev",
+    "dev:en-latest": "pnpm --filter @gitea-docs/site dev:en-latest",
+    "build": "pnpm --filter @gitea-docs/site build",
+    "preview": "pnpm --filter @gitea-docs/site preview",
+    "check": "pnpm --filter @gitea-docs/site check",
+    "cut-version": "node scripts/cut-version.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@11.22.0"
+}

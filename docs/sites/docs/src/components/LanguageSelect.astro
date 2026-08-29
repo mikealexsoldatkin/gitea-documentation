@@ -1,0 +1,72 @@
+---
+import Select from '@astrojs/starlight/components/Select.astro';
+import type { LocaleId } from '@gitea-docs/content-loader';
+import { switchHref } from '../lib/routes';
+import { t } from '../config/strings';
+import { languagePicker, versionPicker } from '../lib/versions';
+
+/**
+ * Version and language pickers. Both live in the language select slot because
+ * that is the only header slot starlight exposes for them; the version list
+ * comes from the product matrix and the language list only offers the languages
+ * the current product is published in, so `/api/` never offers chinese.
+ */
+const meta = Astro.locals.starlightRoute.entry.data.gitea;
+const pathname = Astro.url.pathname;
+const strings = t(meta?.locale ?? 'en-us');
+
+const versions = meta
+  ? versionPicker(meta).map((item) => ({
+      label: item.label,
+      value: switchHref(pathname, meta, { version: item.id }),
+      selected: item.current,
+    }))
+  : [];
+
+const languages = meta
+  ? languagePicker(meta).map((item) => ({
+      label: item.label,
+      value: switchHref(pathname, meta, { locale: item.id as LocaleId }),
+      selected: item.current,
+    }))
+  : [];
+---
+
+<gitea-picker>
+  {versions.length > 1 && <Select icon="down-caret" label={strings.versionLabel} options={versions} width="8em" />}
+  {languages.length > 1 && <Select icon="translate" label={strings.languageLabel} options={languages} width="7em" />}
+</gitea-picker>
+<a class="gitea-sign-in" href="https://gitea.com/user/login">{strings.signIn}</a>
+
+<script>
+  class GiteaPicker extends HTMLElement {
+    constructor() {
+      super();
+      for (const select of this.querySelectorAll('select')) {
+        select.addEventListener('change', (event) => {
+          const target = event.currentTarget;
+          if (target instanceof HTMLSelectElement) window.location.href = target.value;
+        });
+
+        // A page restored from the back/forward cache keeps the selection the
+        // user made before navigating away, which then no longer matches the
+        // page being shown. Put it back on the option the server marked.
+        window.addEventListener('pageshow', (event) => {
+          if (!event.persisted) return;
+          const marked = select.querySelector('option[selected]');
+          const index = marked instanceof HTMLOptionElement ? marked.index : 0;
+          if (select.selectedIndex !== index) select.selectedIndex = index;
+        });
+      }
+    }
+  }
+  customElements.define('gitea-picker', GiteaPicker);
+</script>
+
+<style>
+  gitea-picker {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+</style>

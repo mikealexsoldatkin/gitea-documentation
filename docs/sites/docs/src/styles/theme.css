@@ -1,0 +1,113 @@
+/* Colours of https://about.gitea.com, mapped onto the starlight variables so
+   the documentation matches the rest of the site. The token names in the
+   comments are the ones the about site uses.
+
+   Starlight inverts the meaning of its grey ramp between the two themes:
+   `--sl-color-white` is the strongest text colour and `--sl-color-black` the
+   page background, in both themes. */
+
+:root {
+  --sl-font:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+  --sl-font-mono:
+    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+}
+
+/* Dark, the starlight default theme */
+:root,
+::backdrop {
+  --sl-color-white: #e9ebee;
+  --sl-color-gray-1: #d2d4d8; /* app-text */
+  --sl-color-gray-2: #c0c2c7; /* app-text-muted */
+  --sl-color-gray-3: #969aa1; /* app-text-soft */
+  --sl-color-gray-4: #6b6f76;
+  --sl-color-gray-5: #46494f; /* app-border-strong */
+  --sl-color-gray-6: #2c2e32; /* app-surface-subtle */
+  --sl-color-black: #1e1f20; /* app-bg */
+
+  --sl-color-accent-low: #253341; /* app-accent over app-bg */
+  --sl-color-accent: #4183c4; /* app-accent */
+  --sl-color-accent-high: #6ba3d6;
+  --gitea-brand: #4183c4; /* app-accent */
+
+  --sl-color-text: var(--sl-color-gray-1);
+  --sl-color-text-accent: var(--sl-color-accent-high);
+  --sl-color-text-invert: #ffffff;
+  --sl-color-bg: var(--sl-color-black);
+  --sl-color-bg-nav: #2c2e32; /* app-chrome */
+  --sl-color-bg-sidebar: #1a1b1e; /* app-surface-muted */
+  --sl-color-bg-inline-code: #2c2e32;
+  --sl-color-bg-accent: var(--sl-color-accent);
+  --sl-color-hairline-light: #46494f;
+  --sl-color-hairline: #3f4248; /* app-border */
+  --sl-color-hairline-shade: #161718; /* app-surface */
+  --sl-color-backdrop-overlay: rgba(0, 0, 0, 0.72); /* app-overlay */
+}
+
+:root[data-theme='light'],
+[data-theme='light'] ::backdrop {
+  --sl-color-white: #181c21; /* app-text */
+  --sl-color-gray-1: #22262b;
+  --sl-color-gray-2: #40474d; /* app-text-muted */
+  --sl-color-gray-3: #5b6167; /* app-text-soft */
+  --sl-color-gray-4: #8b9198;
+  --sl-color-gray-5: #b9c0c7; /* app-border-strong */
+  --sl-color-gray-6: #d0d7de; /* app-border */
+  --sl-color-gray-7: #f6f7fa; /* app-surface-muted */
+  --sl-color-black: #ffffff; /* app-bg */
+
+  --sl-color-accent-low: #ebf2f9; /* app-surface-subtle */
+  /* the brand blue is 3.99:1 on white, one notch below the contrast needed for
+     body text, so the hover shade of the about site is used for text and for
+     white on blue chips, and the brand blue itself for fills and borders */
+  --sl-color-accent: #3876b3; /* app-link-hover */
+  --sl-color-accent-high: #2b5d8d;
+  --gitea-brand: #4183c4; /* app-accent */
+
+  --sl-color-text: var(--sl-color-white);
+  --sl-color-text-accent: var(--sl-color-accent);
+  --sl-color-text-invert: #ffffff;
+  --sl-color-bg-nav: #f6f7fa; /* app-chrome */
+  --sl-color-bg-sidebar: #f6f7fa;
+  --sl-color-bg-inline-code: #ebf2f9;
+  --sl-color-bg-accent: var(--sl-color-accent);
+  --sl-color-hairline-light: #e3e7eb;
+  --sl-color-hairline: #d0d7de; /* app-border */
+  --sl-color-hairline-shade: #d0d7de;
+  --sl-color-backdrop-overlay: rgba(0, 0, 23, 0.45); /* app-overlay */
+}
+
+/* Http method colours of the api sidebar. Muted rather than saturated: there
+   are a few hundred of these chips on a page, and the starlight palette hues
+   are loud enough to turn the sidebar into a rainbow. Tinted background, no
+   border, text carrying the colour. */
+:root {
+  --gitea-method-get: #56d364;
+  --gitea-method-post: #79b8e8;
+  --gitea-method-put: #b392f0;
+  --gitea-method-patch: #f0883e;
+  --gitea-method-delete: #ff7b72;
+  --gitea-method-other: var(--sl-color-gray-3);
+  --gitea-method-tint: 0.15;
+}
+
+:root[data-theme='light'] {
+  --gitea-method-get: #166534;
+  --gitea-method-post: #2a5f92;
+  --gitea-method-put: #5b32a8;
+  --gitea-method-patch: #9a3d00;
+  --gitea-method-delete: #b3181f;
+  --gitea-method-other: var(--sl-color-gray-3);
+  --gitea-method-tint: 0.1;
+}
+
+/* Links inside the content follow the about site: accent, darker on hover. */
+.sl-markdown-content a:not(:where(.not-content *)) {
+  color: var(--sl-color-text-accent);
+}
+
+.sl-markdown-content a:not(:where(.not-content *)):hover {
+  color: var(--sl-color-accent-high);
+}

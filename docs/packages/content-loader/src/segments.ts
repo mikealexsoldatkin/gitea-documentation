@@ -1,0 +1,171 @@
+import {
+  defaultLocale,
+  products,
+  routePrefix,
+  type LocaleId,
+  type ProductDef,
+  type ProductId,
+  type VersionDef,
+} from './products.js';
+
+/**
+ * One content directory of the matrix: a (product, version, language) triple
+ * mapped to its source directory and its route prefix.
+ */
+export interface Segment {
+  product: ProductDef;
+  version: VersionDef;
+  locale: LocaleId;
+  /** Source directory, relative to the repository root. */
+  dir: string;
+  /** Route prefix, without leading or trailing slash. */
+  prefix: string;
+}
+
+export interface ScopeFilter {
+  products?: ProductId[];
+  versions?: string[];
+  locales?: LocaleId[];
+}
+
+/**
+ * Reads the build scope from the environment. Used to build a subset of the
+ * matrix during development, where loading every version is wasteful.
+ *
+ *   GITEA_DOCS_PRODUCTS=docs,runner GITEA_DOCS_VERSIONS=1.27 pnpm dev
+ */
+export function scopeFromEnv(env: NodeJS.ProcessEnv = process.env): ScopeFilter {
+  const list = (value: string | undefined) =>
+    value
+      ?.split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  return {
+    products: list(env.GITEA_DOCS_PRODUCTS) as ProductId[] | undefined,
+    versions: list(env.GITEA_DOCS_VERSIONS),
+    locales: list(env.GITEA_DOCS_LOCALES) as LocaleId[] | undefined,
+  };
+}
+
+/** Expands the product matrix into the content directories to load. */
+export function resolveSegments(filter: ScopeFilter = {}): Segment[] {
+  const segments: Segment[] = [];
+  for (const product of products) {
+    if (product.externalBaseUrl) continue;
+    if (filter.products && !filter.products.includes(product.id)) continue;
+    for (const version of product.versions) {
+      if (filter.versions && !filter.versions.includes(version.id)) continue;
+      for (const locale of product.locales) {
+        if (filter.locales && !filter.locales.includes(locale)) continue;
+        const dir = version.sources[locale];
+        if (!dir) continue;
+        segments.push({
+          product,
+          version,
+          locale,
+          dir,
+          prefix: routePrefix(product, version, locale),
+        });
+      }
+    }
+  }
+  return segments;
+}
+
+/** Finds the segment a repository relative file path belongs to. */
+export function segmentOf(segments: Segment[], file: string): Segment | undefined {
+  let match: Segment | undefined;
+  for (const segment of segments) {
+    if (!file.startsWith(`${segment.dir}/`)) continue;
+    // longest directory wins, `docs` must not swallow `docs-foo`
+    if (!match || segment.dir.length > match.dir.length) match = segment;
+  }
+  return match;
+}
+
+/**
+ * Route id of a source file, mirroring the docusaurus routing rules:
+ * `index` files address their directory, a relative `slug` replaces the last
+ * path segment and `slug: /` addresses the root of the version.
+ */
+export function routeSuffix(segment: Segment, file: string, slug?: string): string[] {
+  const relative = file.slice(segment.dir.length + 1).replace(/\.mdx?$/, '');
+  const parts = relative.split('/');
+  const isIndex = parts.at(-1) === 'index';
+  if (isIndex) parts.pop();
+
+  if (slug === '/') {
+    parts.length = 0;
+  } else if (slug) {
+    if (!isIndex) parts.pop();
+    parts.push(...slug.replace(/^\/+|\/+$/g, '').split('/'));
+  }
+
+  return parts;
+}
+
+/**
+ * Route id of a source file. Translations follow the route of their english
+ * counterpart, a translated `slug` never moves a page, which is how docusaurus
+ * treated the localized trees as well.
+ */
+export function routeIdOf(segment: Segment, suffix: string[]): string {
+  // the data store rejects empty ids, starlight maps `index` to the root
+  return [segment.prefix, ...suffix].filter(Boolean).join('/') || 'index';
+}
+
+/** Path of a source file relative to its segment directory. */
+export function relativeToSegment(segment: Segment, file: string): string {
+  return file.slice(segment.dir.length + 1);
+}
+
+/** Key identifying the (product, version) a segment translates. */
+export function groupKeyOf(segment: Segment): string {
+  return `${segment.product.id}@${segment.version.id}`;
+}
+
+/**
+ * Works out which (product, version, language) a route belongs to. Used for the
+ * pages starlight builds outside of the loader, the api reference in
+ * particular, so they get the same pickers, banner and search facets.
+ */
+export function metaFromRouteId(id: string):
+  | { product: ProductId; version: string; locale: LocaleId; prefix: string }
+  | undefined {
+  const route = id === 'index' ? '' : id;
+  let best: { product: ProductId; version: string; locale: LocaleId; prefix: string } | undefined;
+  for (const product of products) {
+    if (product.externalBaseUrl) continue;
+    for (const version of product.versions) {
+      for (const locale of product.locales) {
+        const prefix = routePrefix(product, version, locale);
+        // the api pages are generated by starlight-openapi, which slugifies the
+        // base path: `api/1.26` is built as `api/126` and renamed afterwards
+        const candidates = [prefix, slugifyPrefix(prefix)];
+        if (prefix && !candidates.some((candidate) => route === candidate || route.startsWith(`${candidate}/`))) {
+          continue;
+        }
+        if (best && best.prefix.length >= prefix.length) continue;
+        best = { product: product.id, version: version.id, locale, prefix };
+      }
+    }
+  }
+  return best;
+}
+
+/** Same slugification github-slugger applies to a starlight-openapi base path. */
+function slugifyPrefix(prefix: string): string {
+  return prefix
+    .split('/')
+    .map((part) => part.toLowerCase().replace(/[^\w-]/g, ''))
+    .join('/');
+}
+
+/** Url of a route id, mirroring the starlight slug to pathname rules. */
+export function routeIdToPath(id: string): string {
+  if (id === '' || id === 'index') return '/';
+  const trimmed = id.endsWith('/index') ? id.slice(0, -'/index'.length) : id;
+  return `/${trimmed}/`;
+}
+
+export { defaultLocale };

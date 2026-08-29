@@ -1,0 +1,9 @@
+{
+  "label": "Packages",
+  "position": 40,
+  "link": {
+    "type": "generated-index",
+    "slug": "/usage/packages",
+    "description": "Managing packages and package registries"
+  }
+}

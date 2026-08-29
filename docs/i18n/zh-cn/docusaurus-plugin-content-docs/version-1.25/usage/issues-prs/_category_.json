@@ -1,0 +1,9 @@
+{
+  "label": "工单 和 合并请求",
+  "position": 20,
+  "link": {
+    "type": "generated-index",
+    "slug": "/usage/issues-prs",
+    "description": "工单 和 合并请求 工作流，模板，和协作功能"
+  }
+}

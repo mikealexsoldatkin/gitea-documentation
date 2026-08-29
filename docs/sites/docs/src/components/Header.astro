@@ -1,0 +1,129 @@
+---
+import Default from '@astrojs/starlight/components/Header.astro';
+import { t } from '../config/strings';
+import { announcement, announcementStorageKey } from '../config/site';
+
+/**
+ * The announcement strip belongs above everything, not above the content
+ * column, so it is rendered inside the fixed header bar. `--sl-nav-height`
+ * accounts for its height in `src/styles/custom.css`, which is what starlight
+ * derives the offset of the sidebar, the content and the table of contents
+ * from, so nothing ends up underneath it.
+ *
+ * Dismissing it is remembered per announcement id; the inline script in
+ * `astro.config.mjs` applies that before the first paint, so the page does not
+ * jump.
+ */
+const strings = t(Astro.locals.starlightRoute.entry.data.gitea?.locale ?? 'en-us');
+---
+
+<div class="gitea-header">
+  <gitea-announcement
+    class="gitea-announcement"
+    data-id={announcement.id}
+    data-storage-key={announcementStorageKey}
+    data-pagefind-ignore
+  >
+    <a href={announcement.href}>{announcement.text}</a>
+    <button type="button" aria-label={strings.dismissAnnouncement} title={strings.dismissAnnouncement}>
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path
+          d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.75.75 0 1 1 1.06 1.06L9.06 8l3.22 3.22a.75.75 0 1 1-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 0 1-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"
+        ></path>
+      </svg>
+    </button>
+  </gitea-announcement>
+  <div class="gitea-header-main">
+    <Default />
+  </div>
+</div>
+
+<script>
+  class GiteaAnnouncement extends HTMLElement {
+    constructor() {
+      super();
+      this.querySelector('button')?.addEventListener('click', () => {
+        const { id, storageKey } = this.dataset;
+        document.documentElement.dataset.giteaAnnouncement = 'dismissed';
+        try {
+          if (id && storageKey) localStorage.setItem(storageKey, id);
+        } catch {
+          // storage can be unavailable, the strip stays dismissed for this page
+        }
+      });
+    }
+  }
+  customElements.define('gitea-announcement', GiteaAnnouncement);
+</script>
+
+<style>
+  .gitea-header {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .gitea-announcement {
+    flex: none;
+    display: flex;
+    align-items: center;
+    height: var(--gitea-announcement-height);
+    padding-inline: 1rem;
+    background-color: var(--sl-color-accent);
+    color: var(--sl-color-text-invert);
+    font-size: var(--sl-text-xs);
+  }
+
+  .gitea-announcement a {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .gitea-announcement a:hover {
+    text-decoration: underline;
+  }
+
+  .gitea-announcement button {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-inline-start: 0.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.25rem;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+
+  .gitea-announcement button:hover {
+    opacity: 1;
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+
+  /* the navigation row carries the horizontal padding of the header bar, and
+     reserves room for the mobile menu button where starlight shows one */
+  .gitea-header-main {
+    flex: 1;
+    min-height: 0;
+    padding-inline: var(--sl-nav-pad-x);
+  }
+
+  @media (max-width: 49.999rem) {
+    :global([data-has-sidebar]) .gitea-header-main {
+      padding-inline-end: calc(
+        var(--sl-nav-gap) + var(--sl-nav-pad-x) + var(--sl-menu-button-size)
+      );
+    }
+  }
+</style>

@@ -1,0 +1,9 @@
+{
+  "label": "User Setting",
+  "position": 200,
+  "link": {
+    "type": "generated-index",
+    "slug": "/usage/user-setting",
+    "description": "Configuring user preferences and settings"
+  }
+}

@@ -1,0 +1,74 @@
+---
+import { t } from '../config/strings';
+import { footerLinks } from '../config/site';
+
+/** The gitea site footer, rendered below every part of the page. */
+const strings = t(Astro.locals.starlightRoute.entry.data.gitea?.locale ?? 'en-us');
+---
+
+<footer class="gitea-footer" data-pagefind-ignore>
+  <div class="columns">
+    {
+      footerLinks.map((column) => (
+        <div>
+          <p class="title">{strings.footer[column.title] ?? column.title}</p>
+          <ul>
+            {column.items.map((item) => (
+              <li>
+                <a href={item.href}>{item.label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    }
+  </div>
+</footer>
+
+<style>
+  .gitea-footer {
+    padding: 2rem var(--sl-content-pad-x) 2.5rem;
+    border-top: 1px solid var(--sl-color-hairline);
+    background-color: var(--sl-color-bg-sidebar);
+    font-size: var(--sl-text-sm);
+  }
+
+  /* On wide viewports the navigation sidebar is fixed and reaches the bottom of
+     the viewport, so the footer is painted over it to close the whole page.
+     Below that width the sidebar is an overlay menu and must stay on top. */
+  @media (min-width: 50rem) {
+    .gitea-footer {
+      position: relative;
+      z-index: calc(var(--sl-z-index-menu) + 1);
+    }
+  }
+  /* the columns are centred as a block, with each list left aligned inside it */
+  .columns {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2.5rem 6rem;
+    max-width: 60rem;
+    margin-inline: auto;
+  }
+  .title {
+    font-weight: 600;
+    color: var(--sl-color-white);
+    margin: 0 0 0.5rem;
+  }
+  .gitea-footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .gitea-footer li {
+    margin: 0.25rem 0;
+  }
+  .gitea-footer a {
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+  }
+  .gitea-footer a:hover {
+    color: var(--sl-color-white);
+  }
+</style>

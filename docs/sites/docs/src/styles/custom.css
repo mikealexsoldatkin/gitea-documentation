@@ -1,0 +1,183 @@
+/* Layout: starlight centres a 45rem column, which leaves a wide gap on the left
+   of the content and gives the table of contents the rest of the space. The
+   docs are reference material with wide tables and code blocks, so the content
+   column is widened and the "On this page" column is pinned to a fixed width
+   instead of growing with the viewport. */
+:root {
+  --sl-content-width: 52rem;
+  --gitea-toc-width: 22.5rem;
+  /* The header bar stacks the announcement strip on top of the navigation row.
+     Starlight offsets the sidebar, the content and the table of contents by
+     `--sl-nav-height`, so it has to cover both. The navigation row is as tall
+     as the one of docs.gitea.com. */
+  --gitea-announcement-height: 2rem;
+  --gitea-nav-row-height: 3.75rem;
+  --sl-nav-height: calc(var(--gitea-announcement-height) + var(--gitea-nav-row-height));
+}
+
+@media (min-width: 72rem) {
+  .right-sidebar-container {
+    width: var(--gitea-toc-width);
+  }
+
+  [data-has-sidebar][data-has-toc] .main-pane {
+    width: calc(100% - var(--gitea-toc-width));
+    /* centre the content in the space left between the two sidebars */
+    --sl-content-margin-inline: auto;
+  }
+}
+
+/* A dismissed announcement collapses the strip, which shrinks the header bar
+   and every offset derived from it. */
+:root[data-gitea-announcement='dismissed'] {
+  --gitea-announcement-height: 0rem;
+}
+
+[data-gitea-announcement='dismissed'] .gitea-announcement {
+  display: none;
+}
+
+/* The header bar is laid out by src/components/Header.astro: the strip has to
+   reach the edges and the navigation row provides its own padding. */
+.page > .header {
+  padding: 0;
+}
+
+/* Starlight sizes the logo off the navigation height, which here also covers
+   the announcement strip. Pin it to the size docs.gitea.com uses. */
+.site-title img {
+  height: 2rem;
+}
+
+/* Centre the mobile menu button on the navigation row instead of on the whole
+   header bar, which the announcement strip made taller. */
+starlight-menu-button button {
+  top: calc(
+    var(--gitea-announcement-height) + (var(--gitea-nav-row-height) - var(--sl-menu-button-size)) / 2
+  );
+}
+
+/* Starlight gives the search box the free middle column of the header grid and
+   left aligns it there. Push it to the right, next to the pickers, the theme
+   switch and the sign in button. */
+@media (min-width: 50rem) {
+  .header > :nth-child(2) {
+    justify-content: flex-end;
+  }
+
+  /* algolia docsearch brings its own button, which grows to fill the column */
+  .header .DocSearch-Button {
+    width: 100%;
+    max-width: 22rem;
+    margin-inline-start: auto;
+  }
+}
+
+/* The header keeps the product navigation on the left and the pickers, the
+   theme switch and the sign in button on the right. */
+.gitea-sign-in {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  background-color: var(--sl-color-accent);
+  color: var(--sl-color-text-invert);
+  font-size: var(--sl-text-sm);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.gitea-sign-in:hover {
+  background-color: var(--sl-color-accent-high);
+}
+
+/* Http method badges in the api sidebar. starlight-openapi tags every badge
+   with a `sl-openapi-method-<method>` class; recolour them with the palette of
+   the theme so they follow the light and dark colours, and move them in front
+   of the operation name.
+
+   Every sidebar link is a flex row rather than only the ones holding a badge:
+   a link without one looks the same, and `:has()` would silently drop the whole
+   rule on older browsers, leaving the badge behind the operation name. */
+.sidebar-content a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.sidebar-content .sl-badge {
+  order: -1;
+  flex: none;
+  min-width: 3.5em;
+  text-align: center;
+  font-size: var(--sl-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-family: var(--sl-font-mono);
+  padding-inline: 0.3rem;
+}
+
+.sl-openapi-method-get,
+.sl-openapi-method-post,
+.sl-openapi-method-put,
+.sl-openapi-method-patch,
+.sl-openapi-method-delete,
+.sl-openapi-method-head,
+.sl-openapi-method-options,
+.sl-openapi-method-trace {
+  --sl-color-border-badge: transparent;
+  --sl-color-text-badge: var(--gitea-method);
+  --sl-color-bg-badge: color-mix(in srgb, var(--gitea-method) calc(var(--gitea-method-tint) * 100%), transparent);
+}
+
+.sl-openapi-method-get {
+  --gitea-method: var(--gitea-method-get);
+}
+
+.sl-openapi-method-post {
+  --gitea-method: var(--gitea-method-post);
+}
+
+.sl-openapi-method-put {
+  --gitea-method: var(--gitea-method-put);
+}
+
+.sl-openapi-method-patch {
+  --gitea-method: var(--gitea-method-patch);
+}
+
+.sl-openapi-method-delete {
+  --gitea-method: var(--gitea-method-delete);
+}
+
+.sl-openapi-method-head,
+.sl-openapi-method-options,
+.sl-openapi-method-trace {
+  --gitea-method: var(--gitea-method-other);
+}
+
+/* Search: the results are scoped to the product and the version being read by
+   src/lib/pagefind-ui.ts, which selects the pagefind filters of the page and
+   adds the checkbox below the search input. The filter panel pagefind renders
+   for the same filters is redundant then, and it is not styled by starlight. */
+#starlight__search .pagefind-ui__filter-panel {
+  display: none;
+}
+
+#starlight__search .gitea-search-scope {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-block: 0.5rem;
+  color: var(--sl-color-gray-2);
+  font-size: var(--sl-text-sm);
+  cursor: pointer;
+}
+
+#starlight__search .gitea-search-scope input {
+  /* pagefind resets every element it renders with `all: unset`, which also
+     takes the checkbox rendering away */
+  appearance: auto;
+  width: 0.875rem;
+  height: 0.875rem;
+  accent-color: var(--sl-color-accent);
+  cursor: pointer;
+}

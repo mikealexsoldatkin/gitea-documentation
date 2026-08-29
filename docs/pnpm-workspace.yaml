@@ -1,0 +1,11 @@
+packages:
+  - sites/*
+  - packages/*
+
+savePrefix: ''
+dedupePeerDependents: false
+updateNotifier: false
+ignoreScripts: true
+minimumReleaseAge: 0
+confirmModulesPurge: false
+verifyDepsBeforeRun: false

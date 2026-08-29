@@ -1,0 +1,103 @@
+name: checks
+
+on:
+  - pull_request
+
+# a new push to the same pull request replaces the running preview build
+concurrency:
+  group: checks-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    env:
+      NODE_OPTIONS: --max-old-space-size=8192
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: prepare awesome list
+        run: |
+          make prepare-awesome-latest prepare-awesome\#27 prepare-awesome\#26 prepare-awesome\#25 prepare-awesome\#24 prepare-awesome\#23 prepare-awesome\#22
+
+      - name: install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: build site
+        run: make build
+
+      - name: type check
+        run: make check
+
+      - name: deploy the preview to Cloudflare Pages
+        id: preview
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          # pull requests from forks do not get the secrets, the build above is
+          # then the only check and the preview is silently skipped
+          if [ -z "${CLOUDFLARE_API_TOKEN:-}" ] || [ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]; then
+            echo "no Cloudflare credentials available, skipping the preview deployment"
+            exit 0
+          fi
+
+          # same as the production deployment: _headers and _redirects only
+          # belong to the Cloudflare Pages output, so they are copied in right
+          # before uploading
+          cp cloudflare/_headers sites/docs/dist/_headers
+          cp cloudflare/_redirects sites/docs/dist/_redirects
+
+          pnpm dlx wrangler@4 pages deploy sites/docs/dist \
+            --project-name docs-gitea-com \
+            --branch "pr-$PR_NUMBER" | tee wrangler.log
+
+          url="$(grep -Eo 'https://[A-Za-z0-9.-]+\.pages\.dev' wrangler.log | tail -n 1)"
+          if [ -z "$url" ]; then
+            echo "could not read the preview URL from the wrangler output"
+            exit 1
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+      - name: update the pull request with the preview URL
+        if: steps.preview.outputs.url != ''
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          PREVIEW_URL: ${{ steps.preview.outputs.url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${DEPLOY_TOKEN:-}" ]; then
+            echo "secrets.DEPLOY_TOKEN is missing, the preview is at $PREVIEW_URL"
+            exit 0
+          fi
+
+          api="${GITHUB_API_URL:-$GITHUB_SERVER_URL/api/v1}/repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER"
+          curl --silent --show-error --fail --output pull.json \
+            -H "Authorization: token $DEPLOY_TOKEN" "$api"
+
+          marker='<!-- cloudflare-preview -->'
+          # drop the line written by an earlier run, so the URL is updated in
+          # place instead of piling up at the end of the description
+          body="$(jq -r '.body // ""' pull.json | grep -vF "$marker" || true)"
+          body="$(printf '%s\n' "$body" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}')"
+          if [ -n "$body" ]; then
+            body="$(printf '%s\n\n%s Preview: %s\n' "$body" "$marker" "$PREVIEW_URL")"
+          else
+            body="$(printf '%s Preview: %s\n' "$marker" "$PREVIEW_URL")"
+          fi
+
+          jq -n --arg body "$body" '{body: $body}' > patch.json
+          curl --silent --show-error --fail --output /dev/null \
+            -X PATCH "$api" \
+            -H "Authorization: token $DEPLOY_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data @patch.json
+          echo "the pull request now points at $PREVIEW_URL"

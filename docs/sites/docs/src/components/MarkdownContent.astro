@@ -1,0 +1,50 @@
+---
+import Default from '@astrojs/starlight/components/MarkdownContent.astro';
+import { t } from '../config/strings';
+import { searchFilters } from '../lib/search';
+
+/**
+ * Translated pages carry the notice the docusaurus site showed: a translation
+ * can lag behind the english original, so point at it and at the translation
+ * guide. Fallback pages already get starlight's own notice.
+ *
+ * The wrappers carry the pagefind filters of the page. They sit inside the
+ * `data-pagefind-body` element starlight puts on `<main>` and outside the
+ * `.sl-markdown-content` the default component renders, so they are picked up
+ * by the index without taking part in the content styles. One filter per
+ * element: pagefind reads the whole attribute as a single `name:value` pair.
+ */
+const route = Astro.locals.starlightRoute;
+const meta = route.entry.data.gitea;
+const translated = Boolean(meta) && meta!.locale !== 'en-us' && !route.isFallback;
+const editUrl = route.editUrl?.href;
+const strings = t(meta?.locale ?? 'en-us');
+const filters = meta ? searchFilters(meta) : undefined;
+---
+
+{
+  translated && (
+    <div class="gitea-translation-notice" data-pagefind-ignore>
+      {strings.translationNotice}
+      {editUrl && <a href={editUrl}>{strings.translationHelp}</a>}
+    </div>
+  )
+}
+<div data-pagefind-filter={filters && `product:${filters.product}`}>
+  <div data-pagefind-filter={filters && `version:${filters.version}`}>
+    <Default><slot /></Default>
+  </div>
+</div>
+
+<style>
+  .gitea-translation-notice {
+    margin-bottom: 1rem;
+    padding: 0.5rem 0.75rem;
+    border-inline-start: 3px solid var(--sl-color-orange);
+    background-color: var(--sl-color-gray-6);
+    font-size: var(--sl-text-sm);
+  }
+  .gitea-translation-notice a {
+    margin-inline-start: 0.25rem;
+  }
+</style>

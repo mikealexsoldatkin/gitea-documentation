@@ -1,0 +1,9 @@
+{
+  "label": "Repository",
+  "position": 10,
+  "link": {
+    "type": "generated-index",
+    "slug": "/usage/repository",
+    "description": "Repository management, Git operations, and content features"
+  }
+}

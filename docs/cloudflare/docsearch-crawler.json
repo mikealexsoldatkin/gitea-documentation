@@ -1,0 +1,32 @@
+{
+  "_comment": "Algolia DocSearch crawler configuration. The three facets come from the docsearch:* meta tags every page carries; only the versions people read are indexed, the older ones stay reachable through the version picker.",
+  "index_name": "gitea",
+  "start_urls": [
+    "https://docs.gitea.com/",
+    "https://docs.gitea.com/next/",
+    "https://docs.gitea.com/zh-cn/",
+    "https://docs.gitea.com/zh-tw/",
+    "https://docs.gitea.com/runner/",
+    "https://docs.gitea.com/api/",
+    "https://docs.gitea.com/enterprise/"
+  ],
+  "sitemap_urls": ["https://docs.gitea.com/sitemap-index.xml"],
+  "exclusion_patterns": [
+    "https://docs.gitea.com/1.2*/**",
+    "https://docs.gitea.com/*/1.2*/**",
+    "https://docs.gitea.com/api/1.2*/**",
+    "https://docs.gitea.com/runner/[0-9]/**"
+  ],
+  "selectors": {
+    "lvl0": { "selector": "//nav[contains(@aria-labelledby,'starlight__sidebar')]//a[@aria-current='page']/ancestor::details//summary//span", "type": "xpath", "global": true, "default_value": "Documentation" },
+    "lvl1": ".sl-markdown-content h1, h1",
+    "lvl2": ".sl-markdown-content h2",
+    "lvl3": ".sl-markdown-content h3",
+    "lvl4": ".sl-markdown-content h4",
+    "text": ".sl-markdown-content p, .sl-markdown-content li, .sl-markdown-content td"
+  },
+  "custom_settings": {
+    "attributesForFaceting": ["product", "version", "language"]
+  },
+  "conversation_id": []
+}

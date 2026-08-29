@@ -1,0 +1,58 @@
+---
+import Default from '@astrojs/starlight/components/SiteTitle.astro';
+import { t } from '../config/strings';
+import { productNav } from '../lib/versions';
+
+/**
+ * The starlight header has no navigation links, the gitea site needs the four
+ * products next to the logo. Rendered next to the site title so the rest of the
+ * header (search, theme, pickers) keeps working untouched.
+ */
+const meta = Astro.locals.starlightRoute.entry.data.gitea;
+const strings = t(meta?.locale ?? 'en-us');
+const products = productNav(meta);
+---
+
+<div class="gitea-site-title">
+  <Default><slot /></Default>
+  <nav class="gitea-nav" aria-label="Products">
+    {
+      products.map((product) => (
+        <a href={product.href} class:list={[{ current: product.current }]}>
+          {strings.products[product.id] ?? product.label}
+        </a>
+      ))
+    }
+  </nav>
+</div>
+
+<style>
+  .gitea-site-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    overflow: hidden;
+  }
+  .gitea-nav {
+    display: none;
+    gap: 0.75rem;
+    font-size: var(--sl-text-sm);
+  }
+  .gitea-nav a {
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .gitea-nav a:hover,
+  .gitea-nav a.current {
+    color: var(--sl-color-white);
+  }
+  .gitea-nav a.current {
+    font-weight: 600;
+  }
+  @media (min-width: 72rem) {
+    .gitea-nav {
+      display: flex;
+    }
+  }
+</style>

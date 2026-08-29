@@ -1,0 +1,18 @@
+---
+import Default from '@astrojs/starlight/components/PageFrame.astro';
+import SiteFooter from './SiteFooter.astro';
+
+/**
+ * The gitea site footer closes the page, below the sidebar as well as the
+ * content and the table of contents. It is rendered outside the starlight page
+ * frame, which is a `min-height: 100vh` column, so the footer is only reached
+ * at the very bottom of the document.
+ */
+---
+
+<Default>
+  <Fragment slot="header"><slot name="header" /></Fragment>
+  <Fragment slot="sidebar"><slot name="sidebar" /></Fragment>
+  <slot />
+</Default>
+<SiteFooter />

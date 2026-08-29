@@ -1,0 +1,26 @@
+{
+  "name": "@gitea-docs/site",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "dev:en-latest": "GITEA_DOCS_PRODUCTS=docs,runner GITEA_DOCS_VERSIONS=1.27,3 GITEA_DOCS_LOCALES=en-us astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.41.7",
+    "@astrojs/starlight-docsearch": "0.7.0",
+    "@gitea-docs/content-loader": "workspace:*",
+    "@pagefind/default-ui": "1.5.2",
+    "astro": "7.2.3",
+    "sharp": "0.35.3",
+    "starlight-openapi": "0.26.1"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "typescript": "6.0.3"
+  }
+}

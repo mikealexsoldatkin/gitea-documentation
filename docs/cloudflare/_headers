@@ -1,0 +1,24 @@
+# Cloudflare Pages reads this file from the root of the deployed directory. It
+# is copied into the build output by the publish workflow, so that it is not
+# uploaded to S3/CloudFront where it would be publicly readable at /_headers.
+#
+# Unlike the docusaurus build, astro emits a single content hashed asset
+# directory shared by every language, so no per locale rules are needed.
+
+# Content hashed build output (js, css, fonts). The file name changes with the
+# content, so these can be cached forever.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Files under public/img and public/images keep stable names and are replaced in
+# place, so they get a short, conservative max-age instead.
+/img/*
+  Cache-Control: public, max-age=86400
+
+/images/*
+  Cache-Control: public, max-age=86400
+
+# The pagefind index, only present when the site is built without algolia
+# docsearch. Content hashed as well.
+/pagefind/*
+  Cache-Control: public, max-age=31536000, immutable

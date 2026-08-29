@@ -1,0 +1,9 @@
+{
+  "label": "幫助",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "slug": "/help",
+    "title": "幫助"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "sidebar.docs.category.Installation": {
+    "message": "安装"
+  },
+  "sidebar.docs.category.Administration": {
+    "message": "管理"
+  },
+  "sidebar.docs.category.Usage": {
+    "message": "使用"
+  },
+  "sidebar.docs.category.actions": {
+    "message": "Actions"
+  },
+  "sidebar.docs.category.packages": {
+    "message": "软件包"
+  },
+  "sidebar.docs.category.Development": {
+    "message": "开发"
+  },
+  "sidebar.docs.category.Contributing": {
+    "message": "贡献"
+  },
+  "sidebar.docs.category.Help": {
+    "message": "帮助"
+  },
+  "sidebar.docs.doc.What is Gitea?": {
+    "message": "Gitea是什么?"
+  }
+}

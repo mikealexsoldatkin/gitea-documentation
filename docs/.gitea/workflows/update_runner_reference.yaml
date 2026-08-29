@@ -1,0 +1,109 @@
+name: update runner reference
+
+on:
+  schedule:
+    - cron: '30 3 * * 1' # every Monday at 03:30
+  workflow_dispatch:
+
+env:
+  # main is protected, so the update is proposed as a pull request from this branch
+  BOT_BRANCH: bot/update-runner-reference
+  BASE_BRANCH: main
+  # the develop runner docs follow the main branch of gitea/runner, every
+  # documented release series follows its newest stable tag. The value is used
+  # unquoted, so the glob is expanded by the shell of each step.
+  TARGET_DIRS: runner-docs/reference runner-docs_versioned_docs/version-*/reference
+
+jobs:
+  update-runner-reference:
+    if: github.repository == 'gitea/docs'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          # pushing uses DEPLOY_TOKEN, keep the ephemeral job token out of .git/config
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7
+        with:
+          go-version: 'stable'
+          cache: false
+      - name: regenerate the runner reference pages
+        run: |
+          set -euo pipefail
+          ./update_runner_docs.sh main runner-docs/reference
+          ./update_runner_docs.sh --released
+      - name: verify the generated files
+        run: |
+          set -euo pipefail
+          # the pages are built from `--help` and `generate-config`, so a truncated
+          # build would silently produce an almost empty page
+          for dir in $TARGET_DIRS; do
+            echo "checking $dir"
+            grep -q 'gitea-runner \[command\]' "$dir/cli.md"
+            grep -q 'gitea-runner exec \[flags\]' "$dir/cli.md"
+            grep -q '^runner:' "$dir/config-example.md"
+          done
+      - name: push bot branch
+        id: bot_branch
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          if git diff --quiet -- $TARGET_DIRS; then
+            echo "the runner reference is already up to date"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ -z "$DEPLOY_TOKEN" ]; then
+            echo "secrets.DEPLOY_TOKEN is missing, cannot push the update"
+            exit 1
+          fi
+          remote="https://x-access-token:$DEPLOY_TOKEN@${GITHUB_SERVER_URL#*://}/$GITHUB_REPOSITORY.git"
+
+          # skip if an open bot branch already carries exactly these files
+          if git fetch --quiet --depth=1 "$remote" "refs/heads/$BOT_BRANCH" 2>/dev/null; then
+            if git diff --quiet FETCH_HEAD -- $TARGET_DIRS; then
+              echo "$BOT_BRANCH already proposes this runner reference"
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          git config user.name "Gitea Bot"
+          git config user.email "teabot@gitea.io"
+          git switch --create "$BOT_BRANCH"
+          git add $TARGET_DIRS
+          git commit -m "Update the runner reference pages"
+          # force push: the branch is always rebuilt on top of the current main
+          git push --force "$remote" "HEAD:refs/heads/$BOT_BRANCH"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+      - name: create pull request
+        if: steps.bot_branch.outputs.changed == 'true'
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          cat > pull.json <<EOF
+          {
+            "base": "$BASE_BRANCH",
+            "head": "$BOT_BRANCH",
+            "title": "Update the runner reference pages",
+            "body": "Automated update of the generated runner reference pages from gitea/runner (main for the develop docs, the newest stable tag for every documented series), opened by the \"update runner reference\" scheduled workflow."
+          }
+          EOF
+
+          code="$(curl --silent --show-error --output pull-response.json --write-out '%{http_code}' \
+            -X POST "${GITHUB_API_URL:-$GITHUB_SERVER_URL/api/v1}/repos/$GITHUB_REPOSITORY/pulls" \
+            -H "Authorization: token $DEPLOY_TOKEN" \
+            -H 'Content-Type: application/json' \
+            --data @pull.json)"
+
+          case "$code" in
+            201) echo "pull request created" ;;
+            409) echo "an open pull request for $BOT_BRANCH already exists, it now points at the new commit" ;;
+            *) echo "unexpected response $code:"; cat pull-response.json; exit 1 ;;
+          esac
