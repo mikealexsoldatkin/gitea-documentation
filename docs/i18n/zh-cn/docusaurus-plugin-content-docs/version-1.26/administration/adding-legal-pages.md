@@ -1,6 +1,6 @@
 ---
 date: "2023-05-23T09:00:00+08:00"
-slug: adding-legal-pages
+slug: "adding-legal-pages
 sidebar_position: 110
 
 aliases:
@@ -19,7 +19,7 @@ Gitea 源代码附带了示例页面，位于 `contrib/legal` 目录中。将它
 wget -O /path/to/custom/public/assets/privacy.html https://raw.githubusercontent.com/go-gitea/gitea/main/contrib/legal/privacy.html.sample
 ```
 
-现在，你需要编辑该页面以满足你的需求。特别是，你必须更改电子邮件地址、网址以及与 "Your Gitea Instance" 相关的引用，以匹配你的情况。
+现在，你需要编辑该页面以满足你的需求。特别是，你必须更改电子邮件地址、网址以及与 -v1.26"Your Gitea Instance" 相关的引用，以匹配你的情况。
 
 请务必不要放置会暗示 Gitea 项目对你的服务器负责的一般服务条款或隐私声明。
 

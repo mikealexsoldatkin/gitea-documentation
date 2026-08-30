@@ -1,6 +1,6 @@
 ---
 date: "2023-05-23T09:00:00+08:00"
-slug: "cmd-embedded"
+slug: "cmd-embedded-v1.25"
 sidebar_position: 20
 
 aliases:

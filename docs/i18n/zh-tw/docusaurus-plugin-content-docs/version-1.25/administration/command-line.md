@@ -1,6 +1,6 @@
 ---
 date: "2023-05-23T09:00:00+08:00"
-slug: "command-line"
+slug: "command-line-v1.25"
 sidebar_position: 1
 
 aliases:

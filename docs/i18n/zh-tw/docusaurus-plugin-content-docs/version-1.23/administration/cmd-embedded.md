@@ -1,6 +1,6 @@
 ---
 date: "2020-01-25T21:00:00-03:00"
-slug: "cmd-embedded"
+slug: "cmd-embedded-v1.23"
 sidebar_position: 20
 aliases:
   - /zh-tw/cmd-embedded

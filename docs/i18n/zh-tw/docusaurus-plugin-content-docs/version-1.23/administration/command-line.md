@@ -1,6 +1,6 @@
 ---
 date: "2017-01-01T16:00:00+02:00"
-slug: "command-line"
+slug: "command-line-v1.23"
 sidebar_position: 1
 aliases:
   - /zh-tw/command-line
