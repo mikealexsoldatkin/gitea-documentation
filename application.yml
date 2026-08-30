@@ -1,0 +1,44 @@
+application:
+  debugEnabled: true
+  default:
+    bitbucket:
+      repoBacklink: 'https://github.com/mikealexsoldatkin/gitea-documentation/blob/main/'  # Required: To generate backlinks
+      docsFolder: 'docs'                                # Required: Without slashes
+      contentLookupMode: 'SAME_DIR_FILE_NAME'           # Required: [HTML_LIKE, SAME_DIR_FILE_NAME]
+      lookupExceptions:                                 # Optional: Do not publish files and directories with the following names
+        - 'static'                                      # Folder with static files, no need to render it
+        - 'dummy.md'                                    # Reserved word
+      quickChangesCapturing: true                       # Required: determining changes algorithm. true via git diff - false - via Confluence API
+    auth:
+      host: 'https://gitea-test.atlassian.net'          # Required: confluence host
+      user: 'mike.alex.soldatkin@gmail.com'             # Required: confluence user
+      token: 'ATATT3xFfGF03aS62xseygrIu24n5v1538v60G8yfg8VDdrCUgObPGa3ZdxyDsmDjYvR2_y4N2okDTorK9hxpXEX-TbjVc1JC_CBnVNWwxMTAcYZBZZfOldXU9nkyxCOvYhWiL88hUco-WP7wWUoaB1-BEbrlQrCN4cA-m3EM2S0wdQH72lQaZg=4BACA04C'             # Required API token
+    rendering:
+      kroki_enabled: true                               # Optional: true/false
+      mermaid_renderer: 'none'                          # Optional: ['none', 'kroki', 'mermaid-plugin']
+      plantuml_renderer: 'plantuml'                     # Optional: ['none', 'kroki', 'plantuml']
+    space:
+      spaceKey: 'GITEADOCS'                             # Required: confluence space key
+      parentPage: 'Gitea'                               # Required: confluence parent page
+      titlePrefix: ''                                   # Required: prefix for published pages
+      forceUpdate: false                                # Required: true - Moving pages around the space in strict accordance with the repo structure
+    translation:
+      enabled: false                                    # Required: enable auto translation feature
+    jira:
+      serverId: 'd8359407-5dfc-3a7a-908c-9ff3f53297d8'  # Required to generated inline links
+      projectKeys:                                      # Optional: JIRA projects that will be treated as inline links
+        - 'GITEA'
+    restrictions:
+      enabled: false                                    # Required: is editing page restricrions enabled
+  taskPublishing:
+    tasksFolder: 'tasks'                                # Required: Without slashes
+    inheritedBranch: 'default'                          # Optional: bitbucket inherited branch
+    gitCloneForDiffEnabled: true                        # Run git clone to make git diff (true), or do it externally (false)
+    repoLinkSSH: 'git@bitbucket.org:americor/confluence-integration-app.git'  # To get pages data
+    tempFolder: 'temp'                                  # Folder where repo data will be located
+    quickChangesCapturing: true                         # Required: determining changes algorithm. true via git diff - false - via Confluence API
+    space:
+      spaceKey: 'GITEATASKS'                            # Required: confluence space key
+      parentPage: 'CRM'                                 # Required: confluence parent page
+      titlePrefix: 'Gitea Tasks'                        # Optional: prefix for published pages
+    translation:
