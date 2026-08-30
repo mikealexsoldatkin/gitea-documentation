@@ -1,6 +1,6 @@
 ---
 date: "2016-12-26T16:00:00+02:00"
-slug: "config-cheat-sheet"
+slug: "config-cheat-sheet-zh-tw"
 sidebar_position: 30
 
 aliases:

@@ -1,7 +1,7 @@
 ---
 date: "2016-12-01T16:00:00+02:00"
 title: "Administration"
-slug: "administration"
+slug: "administration-zh-tw-v1.23"
 sidebar_position: 30
 
 menu:

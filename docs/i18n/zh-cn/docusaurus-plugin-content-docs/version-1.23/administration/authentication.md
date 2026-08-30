@@ -1,6 +1,6 @@
 ---
 date: "2016-12-01T16:00:00+02:00"
-slug: "authentication"
+slug: "authentication-zh-cn-v1.23"
 sidebar_position: 10
 aliases:
   - /zh-cn/authentication

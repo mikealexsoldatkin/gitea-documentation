@@ -1,7 +1,7 @@
 ---
 date: "2016-12-01T16:00:00+02:00"
 title: "运维"
-slug: "administration"
+slug: "administration-zh-cn-v1.22"
 sidebar_position: 30
 
 menu:

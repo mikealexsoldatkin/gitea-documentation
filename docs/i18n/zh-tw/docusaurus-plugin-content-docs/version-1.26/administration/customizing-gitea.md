@@ -1,6 +1,6 @@
 ---
 date: "2017-04-15T14:56:00+02:00"
-slug: "customizing-gitea"
+slug: "customizing-gitea-zh-tw-v1.26"
 sidebar_position: 100
 
 aliases:

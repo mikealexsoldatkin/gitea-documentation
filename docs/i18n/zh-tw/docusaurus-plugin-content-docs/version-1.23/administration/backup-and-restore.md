@@ -1,6 +1,6 @@
 ---
 date: "2017-01-01T16:00:00+02:00"
-slug: "backup-and-restore"
+slug: "backup-and-restore-zh-tw-v1.23"
 sidebar_position: 11
 aliases:
   - /zh-tw/backup-and-restore

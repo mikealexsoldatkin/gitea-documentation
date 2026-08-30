@@ -1,6 +1,6 @@
 ---
 date: "2019-12-28"
-slug: adding-legal-pages
+slug: "adding-legal-pages
 sidebar_position: 110
 aliases:
   - /zh-tw/adding-legal-pages
@@ -27,7 +27,7 @@ wget -O /path/to/custom/public/assets/privacy.html https://raw.githubusercontent
 建立或附加到 `/path/to/custom/templates/custom/extra_links_footer.tmpl`：
 
 ```go
-<a class="item" href="{{AppSubUrl}}/assets/privacy.html">隱私政策</a>
+<a class=-zh-tw-v1.23"item" href="{{AppSubUrl}}/assets/privacy.html">隱私政策</a>
 ```
 
 重新啟動 Gitea 以查看更改。
