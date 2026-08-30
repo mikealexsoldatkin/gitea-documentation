@@ -42,3 +42,4 @@ application:
       parentPage: 'CRM'                                 # Required: confluence parent page
       titlePrefix: 'Gitea Tasks'                        # Optional: prefix for published pages
     translation:
+      enabled: false                                    # Required: enable auto translation feature
