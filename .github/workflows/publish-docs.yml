@@ -1,0 +1,21 @@
+name: Publish docs to confluence
+
+on:
+  push:
+    branches: [master, main]
+
+jobs:
+  publish-docs:
+    runs-on: ubuntu-latest
+    container:
+      image: mikealexsoldatkin/node18-git-lfs:1.0.2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: scripts
+
+      - run: node scripts/index.js --no-deprecation
